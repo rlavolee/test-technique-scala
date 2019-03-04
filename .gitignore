@@ -1,0 +1,13 @@
+logs
+target
+/.idea
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+app-2.11/
+project/project/
+projectFilesBackup/
+test-2.11/
+/bin/
