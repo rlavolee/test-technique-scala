@@ -20,7 +20,7 @@ Ayez toujours à l'esprit que c'est principalement ces critères que nous jugero
 
 ## Build
 
-Run `sbt compile` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Run `sbt compile` to build the project.
 
 ## Running unit tests
 
