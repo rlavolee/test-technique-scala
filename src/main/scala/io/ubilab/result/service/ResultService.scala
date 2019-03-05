@@ -12,7 +12,7 @@ class ResultService {
 
   def unseenResult(idResult:Int) = ???
 
-  def getAllResult():List[Result] = ???
+  def getAllResult():List[Result] = List()
 
   def getAllResultSeen():List[Result] = ???
   def getAllResultUnSeen():List[Result] = ???
@@ -22,5 +22,5 @@ class ResultService {
 
 object ResultService {
 
-  def build:ResultService = ???
+  def build:ResultService = new ResultService
 }

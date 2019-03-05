@@ -15,7 +15,8 @@ class ResultServiceSpec extends FunSpec with Matchers {
     }
   }
 
-  describe("Aprés l'ajout d'un résultat,") {
+  describe("Après l'ajout d'un résultat,") {
+    pending
 
     val resultService = ResultService.build
 
@@ -45,8 +46,8 @@ class ResultServiceSpec extends FunSpec with Matchers {
 
   }
 
-  describe("aprés l'ajout de 3 resultats,") {
-
+  describe("Après l'ajout de 3 résultats,") {
+    pending
     // init le service avec 3 resultats
 
     it("devrait avoir une liste de 3 resultats non vue aprés l'ajout de 3 resultat.") {
@@ -76,8 +77,8 @@ class ResultServiceSpec extends FunSpec with Matchers {
   }
 
 
-  describe(",aprés l'ajout de 3 resultats,") {
-
+  describe("Après l'ajout de 3 résultats,") {
+    pending
     // init le service avec 3 resultats
     it("devrait avoir la list des résultat dans l'order de création ( en se basant sur les events de création)") {
       true shouldEqual false
