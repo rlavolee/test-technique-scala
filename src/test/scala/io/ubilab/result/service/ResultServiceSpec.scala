@@ -1,13 +1,15 @@
 package io.ubilab.result.service
 
-import io.ubilab.result.model.Result
+import io.ubilab.result.model.{Result, ResultId}
+import io.ubilab.result.repository.inmemory.ResultRepository
 import org.scalatest.{FunSpec, Matchers}
 
 class ResultServiceSpec extends FunSpec with Matchers {
 
   describe("Step 1 : initialisation du projet avec 0 et 1 resultat") {
 
-    val resultService = ResultService.build
+    val resultRepository = new ResultRepository
+    val resultService = ResultService.build(resultRepository)
 
     it("devrait être initialisé avec une liste de résultat vide") {
 
@@ -18,16 +20,17 @@ class ResultServiceSpec extends FunSpec with Matchers {
   describe("Après l'ajout d'un résultat,") {
     pending
 
-    val resultService = ResultService.build
+    val resultRepository = new ResultRepository
+    val resultService = ResultService.build(resultRepository)
 
     resultService.addResult(
       Result(
-        46,
-        76,
-        List(42),
-        false,
-        Nil,
-        "test"
+        id = ResultId(46),
+        idOwner = 76,
+        idRecipients = List(42),
+        isSeen = false,
+        eventResults = Nil,
+        contentOfResult = "test"
       )
     )
 
@@ -39,9 +42,9 @@ class ResultServiceSpec extends FunSpec with Matchers {
 
     it("devrait avoir une liste de 1 résultat vue aprés la vision de ce résultat") {
 
-      resultService.seenResult(46)
-      resultService.getAllResultSeen().length shouldEqual 1
-      resultService.getAllResult().head.isSeen shouldEqual true
+      resultService.seenResult(ResultId(46))
+      resultService.getAllResultSeen.length shouldEqual 1
+      resultService.getAllResult.head.isSeen shouldEqual true
     }
 
   }

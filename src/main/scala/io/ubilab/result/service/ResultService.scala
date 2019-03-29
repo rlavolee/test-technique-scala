@@ -1,26 +1,29 @@
 package io.ubilab.result.service
 
-import io.ubilab.result.model.Result
+import io.ubilab.result.model.{Result, ResultId}
+import io.ubilab.result.repository.ResultRepositoryImpl
 
-class ResultService {
+final class ResultService (
+  resultRepository: ResultRepositoryImpl
+) {
+  def addResult(result: Result) = ???
 
+  def seenResult(id: ResultId): Unit = ???
 
-  def addResult(result:Result) = ???
+  def unseenResult(id: ResultId): Unit = ???
 
+  def getAllResult: List[Result] =
+    resultRepository.getAll.toList
 
-  def seenResult(idResult:Int) = ???
+  def getAllResultSeen: List[Result] = ???
 
-  def unseenResult(idResult:Int) = ???
+  def getAllResultUnSeen: List[Result] = ???
 
-  def getAllResult():List[Result] = List()
-
-  def getAllResultSeen():List[Result] = ???
-  def getAllResultUnSeen():List[Result] = ???
-
-  def numberOfEventSeen:Int =  ???
+  def numberOfEventSeen: Int =  ???
 }
 
 object ResultService {
 
-  def build:ResultService = new ResultService
+  def build(resultRepository: ResultRepositoryImpl): ResultService =
+    new ResultService(resultRepository)
 }
