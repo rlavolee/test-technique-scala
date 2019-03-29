@@ -1,5 +1,6 @@
 package io.ubilab.result.service
 
+import io.ubilab.result.model.EventResultStatus.Seen
 import io.ubilab.result.model.{Result, ResultId}
 import io.ubilab.result.repository.ResultRepositoryImpl
 
@@ -10,6 +11,9 @@ final class ResultService (
     resultRepository.get(id).foreach{ result =>
       resultRepository.update(id, result.copy(isSeen = isSeen))
     }
+
+  def addResults(results: List[Result]): List[Boolean] =
+    results.map(addResult)
 
   def addResult(result: Result): Boolean =
     resultRepository.add(result.id, result)
@@ -29,7 +33,11 @@ final class ResultService (
   def getAllResultSeen: List[Result] =
     getAllResult.filter(_.isSeen)
 
-  def numberOfEventSeen: Int =  ???
+  def getAllResultUnSeen: List[Result] =
+    getAllResult.filterNot(_.isSeen)
+
+  def numberOfEventSeen: Int =
+    getAllResult.count(_.eventResults.exists(_.status == Seen))
 }
 
 object ResultService {

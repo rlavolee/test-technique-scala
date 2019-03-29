@@ -6,6 +6,33 @@ import org.scalatest.{FunSpec, Matchers}
 
 class ResultServiceSpec extends FunSpec with Matchers {
 
+  val results = List(
+    Result(
+      id = ResultId(46),
+      idOwner = 76,
+      idRecipients = List(42),
+      isSeen = false,
+      eventResults = Nil,
+      contentOfResult = "test"
+    ),
+    Result(
+      id = ResultId(47),
+      idOwner = 76,
+      idRecipients = List(42),
+      isSeen = false,
+      eventResults = Nil,
+      contentOfResult = "test"
+    ),
+    Result(
+      id = ResultId(48),
+      idOwner = 76,
+      idRecipients = List(42),
+      isSeen = false,
+      eventResults = Nil,
+      contentOfResult = "test"
+    )
+  )
+
   describe("Step 1 : initialisation du projet avec 0 et 1 resultat") {
 
     val resultRepository = new ResultRepository
@@ -49,31 +76,54 @@ class ResultServiceSpec extends FunSpec with Matchers {
   }
 
   describe("Après l'ajout de 3 résultats,") {
-    pending
     // init le service avec 3 resultats
+    val resultRepository = new ResultRepository
+    val resultService = ResultService.build(resultRepository)
+
+    resultService.addResults(results)
 
     it("devrait avoir une liste de 3 resultats non vue aprés l'ajout de 3 resultat.") {
-      true shouldEqual false
+      resultService.getAllResult.length shouldEqual 3
+      resultService.getAllResultSeen.length shouldEqual 0
     }
 
     it("ne devrait pas authorisé l'ajout d'un résultats avec un id existant") {
-      true shouldEqual false
+      val sut =
+        resultService.addResult(
+          Result(
+            id = ResultId(46),
+            idOwner = 76,
+            idRecipients = List(42),
+            isSeen = false,
+            eventResults = Nil,
+            contentOfResult = "test"
+          )
+        )
+
+      sut shouldEqual false
     }
 
     it("devrait avoir 1 resultats vue dans la liste aprés la vision d'un resultat") {
-      true shouldEqual false
+      resultService.seenResult(ResultId(46))
+      resultService.getAllResultSeen.length shouldEqual 1
+      resultService.getAllResult.head.isSeen shouldEqual true
     }
 
     it("devrait avoir les 3 resultats vue dans la liste aprés qu'il soit tous vue") {
-      true shouldEqual false
+      resultService.seenAllResult()
+      resultService.getAllResultSeen.length shouldEqual 3
+      resultService.getAllResult.map(_.isSeen) shouldEqual List(true, true, true)
     }
 
     it("devrait avoir plus que 2 resultats vue dans la liste aprés qu'il soit tous vue puis 1 ou la vue est enlevé") {
-      true shouldEqual false
+      resultService.getAllResultSeen.length should be > 2
+      resultService.unseenResult(ResultId(46))
+      resultService.getAllResultSeen.length shouldEqual 2
     }
 
-    it("ne devrait pas planté aprés la vision d\\'un resultat non ajouté") {
-      true shouldEqual false
+    it("ne devrait pas planté aprés la vision d'un resultat non ajouté") {
+      resultService.seenResult(ResultId(9000))
+      true
     }
 
   }
