@@ -1,47 +1,72 @@
 package io.ubilab.result.service
 
-import io.ubilab.result.model.EventResultStatus.Seen
-import io.ubilab.result.model.{Result, ResultId}
+import scala.concurrent.{ExecutionContext, Future}
+
+import io.ubilab.result.model.{EventResult, Result, ResultId}
 import io.ubilab.result.repository.ResultRepositoryImpl
+import io.ubilab.result.repository.inmemory.ResultGuardian.RichResult
 
 final class ResultService (
   resultRepository: ResultRepositoryImpl
-) {
-  private def updateSeen(id: ResultId, isSeen: Boolean): Unit =
-    resultRepository.get(id).foreach{ result =>
-      resultRepository.update(id, result.copy(isSeen = isSeen))
-    }
+)(implicit ec: ExecutionContext) {
 
-  def addResults(results: List[Result]): List[Boolean] =
-    results.map(addResult)
+  def addResults(results: List[Result]): Future[List[Boolean]] =
+    Future.sequence(results.map(addResult))
 
-  def addResult(result: Result): Boolean =
+  def addResult(result: Result): Future[Boolean] =
     resultRepository.add(result.id, result)
 
-  def seenAllResult(): Unit =
-    getAllResult.foreach(result => seenResult(result.id))
+  def seenAllResult: Future[List[Boolean]] =
+    for {
+      results <- getAllResult
+      acknowledges <- Future.sequence(results.map(result => seenResult(result.id)))
+    } yield acknowledges
 
-  def seenResult(id: ResultId): Unit =
-    updateSeen(id, isSeen = true)
+  def seenResult(id: ResultId): Future[Boolean] =
+    resultRepository.seen(id)
 
-  def unseenResult(id: ResultId): Unit =
-    updateSeen(id, isSeen = false)
+  def unseenResult(id: ResultId): Future[Boolean] =
+    resultRepository.unSeen(id)
 
-  def getAllResult: List[Result] =
-    resultRepository.getAll.toList
+  def getAllResult: Future[List[Result]] =
+    resultRepository.getAll
 
-  def getAllResultSeen: List[Result] =
-    getAllResult.filter(_.isSeen)
+  def getAllRichResult: Future[List[RichResult]] =
+    resultRepository.getAllRichResult
 
-  def getAllResultUnSeen: List[Result] =
-    getAllResult.filterNot(_.isSeen)
+  def getAllResultSeen: Future[List[Result]] =
+    getAllResult.map(_.filter(_.isSeen))
 
-  def numberOfEventSeen: Int =
-    getAllResult.count(_.eventResults.exists(_.status == Seen))
+  def getAllResultUnSeen: Future[List[Result]] =
+    getAllResult.map(_.filterNot(_.isSeen))
+
+  def getAllResultByRecentUpdate: Future[List[Result]] = {
+
+    val sortByRecentDate: (EventResult, EventResult) => Boolean = {
+      case (er1, er2) => er1.createdAt.isAfter(er2.createdAt)
+    }
+
+    val sortByRecentRichResult: (RichResult, RichResult) => Boolean = {
+      case (rr1, rr2) =>
+        (for {
+          sortRr1 <- rr1.eventStatus.sortWith(sortByRecentDate).headOption
+          sortRr2 <- rr2.eventStatus.sortWith(sortByRecentDate).headOption
+        } yield {
+          sortRr1.createdAt.isAfter(sortRr2.createdAt)
+        }).getOrElse(false)
+    }
+
+    for {
+      richResults <- getAllRichResult
+      sortRichResults = richResults.sortWith(sortByRecentRichResult)
+    } yield sortRichResults.map(_.result)
+  }
 }
 
 object ResultService {
 
-  def build(resultRepository: ResultRepositoryImpl): ResultService =
+  def build(
+    resultRepository: ResultRepositoryImpl
+  )(implicit ec: ExecutionContext): ResultService =
     new ResultService(resultRepository)
 }
